@@ -8,3 +8,6 @@
 - ちふれ: https://www.chifure.co.jp/products/cleansing/
 - ロート製薬: https://jp.rohto.com/product/skincare/
 - 資生堂: https://www.shiseido.co.jp/onlineshop/dictionary/08.html
+
+## チートシート
+https://zenn.dev/shin1007/articles/2476f5af6c51c8

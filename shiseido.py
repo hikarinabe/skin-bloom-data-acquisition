@@ -58,30 +58,37 @@ def get_product_info(url,c_id):
     rs = requests.get(url)
     sp = BeautifulSoup(rs.text.encode(rs.encoding),'html.parser')
     
+  
+    #name
+    h1_tag = str(sp.find('h1').string)
+    if "詰め替え" in h1_tag or "つめかえ" in h1_tag or "レフィル" in h1_tag:
+        return True
+    
+    
     #image_url
     image_url = sp.find('li', class_='item-list__item').find('img').get('src')
-    
-    #name
-    h1_tag = sp.find('h1').string
-    
+   
     #price
     price = sp.find('div',class_="product-price").span.get('content')
     
     #成分
-    table = sp.find('div',class_="sku-component-text").previous_sibling
+    tmp = sp.find('div',class_="product-detail tabContent notShowMe").find_all("dd")
+    tmp[-2].div.decompose()
+    table = str(tmp[-2].get_text())
     table=table.strip()
     
     #classに追加
     cd = cosmetic_data()
     cd.company = 110
     cd.company_str = "資生堂"
-    cd.name = str(h1_tag)
+    cd.name = h1_tag
     cd.price = int(price)
     cd.category = c_id
-    cd.raw_ingredients = str(table)
+    cd.raw_ingredients = table
     cd.image_url = image_url
-    return cd
 
+    store_db(cd)
+    # return table
 
 
 def main():
@@ -92,10 +99,14 @@ def main():
     
     url = args[1]
     category_url = get_product_category(url)
-    product_url = get_puroduct_page(category_url[0][0],category_url[0][1])
-    res = get_product_info(product_url[0][0],product_url[0][1])
-    print(res.name,res.price,res.company,res.company_str,res.category,res.raw_ingredients,res.image_url)
-    # return True
-    # print(res)
+    cnt = 0
+    for c_url, c_id in category_url:
+        product_url = get_puroduct_page(c_url,c_id)
+        for p_url, id in product_url:
+            get_product_info(p_url,id)
+            cnt += 1
+            if cnt%10==0:
+                print(cnt,end=" ")
+    
 
 main()

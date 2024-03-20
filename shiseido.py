@@ -54,7 +54,33 @@ def get_puroduct_page(url,c_id):
     
 
 
-
+def get_product_info(url,c_id):
+    rs = requests.get(url)
+    sp = BeautifulSoup(rs.text.encode(rs.encoding),'html.parser')
+    
+    #image_url
+    image_url = sp.find('li', class_='item-list__item').find('img').get('src')
+    
+    #name
+    h1_tag = sp.find('h1').string
+    
+    #price
+    price = sp.find('div',class_="product-price").span.get('content')
+    
+    #成分
+    table = sp.find('div',class_="sku-component-text").previous_sibling
+    table=table.strip()
+    
+    #classに追加
+    cd = cosmetic_data()
+    cd.company = 110
+    cd.company_str = "資生堂"
+    cd.name = str(h1_tag)
+    cd.price = int(price)
+    cd.category = c_id
+    cd.raw_ingredients = str(table)
+    cd.image_url = image_url
+    return cd
 
 
 
@@ -66,9 +92,10 @@ def main():
     
     url = args[1]
     category_url = get_product_category(url)
-    res = get_puroduct_page(category_url[0][0],category_url[0][1])
-    
-    print(res[0])
+    product_url = get_puroduct_page(category_url[0][0],category_url[0][1])
+    res = get_product_info(product_url[0][0],product_url[0][1])
+    print(res.name,res.price,res.company,res.company_str,res.category,res.raw_ingredients,res.image_url)
     # return True
+    # print(res)
 
 main()

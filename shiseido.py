@@ -44,7 +44,14 @@ def get_product_category(url):
             res.append([f"https://www.shiseido.co.jp/{a.get('href')}",return_category[a.string]])
     return res
 
-
+def get_puroduct_page(url,c_id):
+    rs = requests.get(url)
+    sp = BeautifulSoup(rs.text.encode(rs.encoding),'html.parser')
+    a_tag = sp.find_all('a',class_="link-to-detail-page")
+    res = [[f"https://www.shiseido.co.jp/{a.get('href')}",c_id] for a in a_tag]
+        
+    return res
+    
 
 
 
@@ -58,9 +65,10 @@ def main():
         return
     
     url = args[1]
-    res = get_product_category(url)
+    category_url = get_product_category(url)
+    res = get_puroduct_page(category_url[0][0],category_url[0][1])
     
-    print(res)
+    print(res[0])
     # return True
 
 main()

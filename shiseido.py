@@ -23,7 +23,6 @@ class cosmetic_data(mdl.Model):
     # image_url ... とりあえずurlで入れておいて必要な時にstorageに入れる
     image_url = mdl.TextField()
     
-return_category = {'洗顔料': 4,  'メイク落とし': 5, '化粧水':1, '乳液':2, '美容液':3, 'エッセンス':3, 'クリーム':6, 'アイクリーム':6, 'オールインワン':7, 'マスク':8}
 return_category = {'メイク落とし ・ クレンジング': 5, '洗顔 ・ 石鹸':4, '化粧水 ・ ローション':1, '保湿液':3, '乳液':2,  'クリーム ・ アイクリーム':6, '美容液':3, 'パック ・ マスク':8, '収れん化粧水':1, 'オールインワン':7}
 return_company = {'資生堂': 110}
 
@@ -72,11 +71,17 @@ def get_product_info(url,c_id):
     price = sp.find('div',class_="product-price").span.get('content')
     
     #成分
-    tmp = sp.find('div',class_="product-detail tabContent notShowMe").find_all("dd")
-    tmp[-2].div.decompose()
-    table = str(tmp[-2].get_text())
-    table=table.strip()
-    
+    dt_tag = sp.find('div',class_="product-detail tabContent notShowMe").find_all("dt")
+    for i in range(len(dt_tag)-1,-1,-1):
+        if dt_tag[i].string=="成分":
+            index = i
+            break
+
+    dd_tag = dt_tag[index].next_sibling.next_sibling
+    dd_tag.div.decompose()
+    table = str(dd_tag.get_text())
+    table = table.strip()
+  
     #classに追加
     cd = cosmetic_data()
     cd.company = 110
@@ -88,7 +93,7 @@ def get_product_info(url,c_id):
     cd.image_url = image_url
 
     store_db(cd)
-    # return table
+    
 
 
 def main():
@@ -98,6 +103,7 @@ def main():
         return
     
     url = args[1]
+    
     category_url = get_product_category(url)
     cnt = 0
     for c_url, c_id in category_url:

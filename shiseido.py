@@ -57,7 +57,8 @@ def get_product_info(url,c_id):
     rs = requests.get(url)
     sp = BeautifulSoup(rs.text.encode(rs.encoding),'html.parser')
     
-  
+    print(url)
+    
     #name
     h1_tag = str(sp.find('h1').string)
     if "詰め替え" in h1_tag or "つめかえ" in h1_tag or "レフィル" in h1_tag:
@@ -71,7 +72,7 @@ def get_product_info(url,c_id):
     price = sp.find('div',class_="product-price").span.get('content')
     
     #成分
-    dt_tag = sp.find('div',class_="product-detail tabContent notShowMe").find_all("dt")
+    dt_tag = sp.find('div',class_="product-detail").find_all("dt")
     for i in range(len(dt_tag)-1,-1,-1):
         if dt_tag[i].string=="成分":
             index = i
@@ -93,7 +94,6 @@ def get_product_info(url,c_id):
     cd.image_url = image_url
 
     store_db(cd)
-    
 
 
 def main():
@@ -109,10 +109,9 @@ def main():
     for c_url, c_id in category_url:
         product_url = get_puroduct_page(c_url,c_id)
         for p_url, id in product_url:
+            print(cnt,end=" ")
             get_product_info(p_url,id)
             cnt += 1
-            if cnt%10==0:
-                print(cnt,end=" ")
     
 
 main()
